@@ -50,7 +50,7 @@ public class AbstractTests {
             } else {
                 LOG.info("Property file '{}' not found, creating dummy file.", PROP_FILENAME);
 
-                PROPS.setProperty("API_Key", "INSERT_YOUR_KEY_HERE");
+                PROPS.setProperty("API_Key", "387f00af-59ef-4ece-8637-bfa0b05532cb");
 
                 TestLogger.saveProperties(PROPS, f, "Properties file for tests");
                 fail("Failed to get key information from properties file '" + PROP_FILENAME + "'");
