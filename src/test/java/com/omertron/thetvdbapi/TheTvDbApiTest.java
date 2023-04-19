@@ -49,7 +49,7 @@ public class TheTvDbApiTest extends AbstractTests {
     private static final String SEASON_YEAR = "2007";
 
     public TheTvDbApiTest() {
-        tvdb = new TheTVDBApi(getApiKey());
+        tvdb = new TheTVDBApi("387f00af-59ef-4ece-8637-bfa0b05532cb");
     }
 
     @BeforeClass
