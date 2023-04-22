@@ -204,5 +204,112 @@ public class RestApiTest {
                 body("data.size()",greaterThan(0));
     }
 
+    //TESTING /movies/slug/{slug}
+
+    @Test
+    //Testing that accessing the endpoint without authorization gives 401
+    public void testMovieSlugUnauthorized() {
+        when().get("https://api4.thetvdb.com/v4/movies/slug/the-last-kingdom-seven-kings-must-die").then().assertThat().statusCode(401);
+    }
+
+    @Test
+    //Testing passing an invalid slug should give 400
+    //Documentation doesn't really specify what a valid or invalid slug would be though
+    //so we will pass no slug
+    public void testMovieInvalidSlug() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/slug/").
+                then().
+                assertThat().statusCode(400);
+
+    }
+
+    @Test
+    //Testing passing a slug for a nonexistent movie returns 404 not found
+    public void testMovieNonexistentMovieSlug() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/slug/nowaythismovieslugexists").
+                then().
+                assertThat().statusCode(404);
+
+    }
+
+    @Test
+    //Testing getting The Last Kingdom: Seven Kings Must Die works
+    public void testMovieSlugWorks() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/slug/the-last-kingdom-seven-kings-must-die").
+                then().
+                assertThat().statusCode(200).
+                body("data.aliases",instanceOf(List.class)).
+                body("data.id",instanceOf(Integer.class)).
+                body("data.image",instanceOf(String.class)).
+                body("data.lastUpdated",instanceOf(String.class)).
+                body("data.name",equalTo("The Last Kingdom: Seven Kings Must Die")).
+                body("data.nameTranslations",instanceOf(List.class)).
+                body("data.overviewTranslations",instanceOf(List.class)).
+                body("data.score",instanceOf(Integer.class)).
+                body("data.slug",equalTo("the-last-kingdom-seven-kings-must-die")).
+                body("data.status",notNullValue()).
+                body("data.status.id",instanceOf(Integer.class)).   //GET THE FIELDS WITHIN STATUS!!!
+                body("data.status.keepUpdated",instanceOf(Boolean.class)).
+                body("data.status.name",instanceOf(String.class)).
+                body("data.status.recordType",instanceOf(String.class)).
+                body("data.runtime",instanceOf(Integer.class)).
+                body("data.year",instanceOf(String.class));
+    }
+
+    //TESTING /movies/{id}/translations/{language}
+    @Test
+    //Testing with a valid ID and translation (eng, spa, etc.)
+    public void testMoviesIdTranslationValids() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/344183/translations/eng").
+                then().
+                assertThat().statusCode(200).
+                body("data.name",equalTo("The Last Kingdom: Seven Kings Must Die")).
+                body("data.language",equalTo("eng")).
+                body("data.isAlias",instanceOf(Boolean.class)). //Specified in schema but isn't returned
+                body("data.isPrimary",instanceOf(Boolean.class)).
+                body("data.overview",instanceOf(String.class)).
+                body("data.tagline",instanceOf(String.class));  //specified in schema but isn't returned
+    }
+
+    @Test
+    //Testing with a valid ID but not translation
+    public void testMoviesGoodIDBadTranslation() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/344183/translations/english").
+                then().
+                assertThat().statusCode(400); //actually giving a 404 but schema specifies 400
+    }
+
+    @Test
+    //Testing with a nonexistent id and a good translation
+    public void testMoviesNonexistentIDGoodTranslation() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/34418332432/translations/eng").
+                then().
+                assertThat().statusCode(404);
+    }
+
+    @Test
+    //Testing invalid ID and invalid translation
+    public void testMoviesBadIDBadTranslation() {
+        given().
+                header("Authorization", headerVal).
+                when().get("https://api4.thetvdb.com/v4/movies/sam/translations/english").
+                then().
+                assertThat().statusCode(400);
+    }
+
+
+
 
 }
